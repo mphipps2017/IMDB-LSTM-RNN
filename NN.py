@@ -37,8 +37,8 @@ model.compile(
 )
 results = model.fit(
  train_x, train_y,
- epochs= 2,
+ epochs= 1,
  batch_size = 500,
  validation_data = (test_x, test_y)
 )
-print("Test-Accuracy:", np.mean(results.history["val_acc"]))
+#print("Test-Accuracy:", np.mean(results.history["val_acc"]))
