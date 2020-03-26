@@ -37,7 +37,7 @@ model.compile(
 )
 results = model.fit(
  train_x, train_y,
- epochs= 1,
+ epochs= 2,
  batch_size = 500,
  validation_data = (test_x, test_y)
 )
