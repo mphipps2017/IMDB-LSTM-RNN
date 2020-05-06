@@ -4,9 +4,10 @@ from keras.preprocessing import sequence
 from keras.models import Sequential
 from keras.layers import Dense, Embedding
 from keras.layers import LSTM, Bidirectional
+from keras.layers.recurrent import GRU
 from keras.datasets import imdb
 
-max_features = 60000 # This refers to the number of input vertices (or features) in the model
+max_features = 1000 # This refers to the number of input vertices (or features) in the model
 maxlen = 80 # This is the maximum number of words
 batch_size = 100 # Number of training samples executed prior to doing back prop
 
@@ -32,9 +33,10 @@ model = Sequential()
 # Embedding is an NLP model that has the goal of grouping similar words. For example good and great are similar
 # This layer is trying to mathmatically model this in that way.
 # The second input means there are n categories for the words to be filtered too.  
-model.add(Embedding(max_features, 128))
-model.add(Bidirectional(LSTM(32, dropout=0.2, recurrent_dropout=0.3)))
-model.add(Dense(20, activation='relu'))
+model.add(Embedding(max_features, 52))
+# Switched from using LSTM since it has higher memory requirements and similar results as GRU
+model.add(Bidirectional(LSTM(25, dropout=.5)))
+#model.add(Dense(30, activation='relu'))
 model.add(Dense(1, activation='sigmoid'))
 
 # try using different optimizers and different optimizer configs
@@ -44,15 +46,16 @@ model.compile(loss='binary_crossentropy',
 model.summary()
 
 # Logic for saving model
-checkpoint_dir = os.getcwd()
-cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=os.getcwd(),save_weights_only=True,verbose=1)
+checkpoint_path = os.getcwd()+"/cp.ckpt"
+
+cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
+                                                 save_weights_only=True,
+                                                 save_best_only=True,
+                                                 verbose=1)
 
 print("Estimated Size of Model " + str((model.count_params()* 4)/1000) + "kB")
-print('Train...')
-if False:
-    model.fit(x_train, y_train,
-            batch_size=batch_size,
-            epochs=1,
-            validation_data=(x_test, y_test))
-    score, acc = model.evaluate(x_test, y_test,
-            batch_size=batch_size, callbacks=[cp_callback])
+model.fit(x_train, y_train,
+    batch_size=batch_size,
+    epochs=20,
+    validation_data=(x_test, y_test),
+    callbacks=[cp_callback])
